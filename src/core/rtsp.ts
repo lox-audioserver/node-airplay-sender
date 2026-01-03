@@ -303,6 +303,10 @@ Client.prototype.startHandshake = function(this: ClientInstance, udpServers: any
 };
 
 Client.prototype.startTimeout = function(this: ClientInstance) {
+  if (this.timeout) {
+    clearTimeout(this.timeout);
+    this.timeout = null;
+  }
   this.timeout = setTimeout(() => {
     if (this.debug) this.logLine?.('timeout');
     this.cleanup('timeout');
