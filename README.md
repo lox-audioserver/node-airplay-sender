@@ -57,6 +57,7 @@ Creates and starts a sender for one AirPlay device. Returns the instance so you 
 - `startTimeMs` (number) Unix ms to align playback across devices.
 - `debug` (boolean) Verbose logging from the transport stack.
 - `log` `(level, message, data?) => void` Hook for library logs.
+- `config` (partial) Override buffer/sync/RTSP tuning at runtime (see `src/utils/config.ts` for keys like `packets_in_buffer`, `stream_latency`, `sync_period`, retry/backoff, etc.).
 
 **Events** (sent to `onEvent` callback)
 - `device`: `{ event: "device", message: status, detail: { key, desc } }`

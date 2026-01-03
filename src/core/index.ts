@@ -1,6 +1,6 @@
 import { Duplex } from 'node:stream';
 import Devices from './devices';
-import config from '../utils/config';
+import config, { applyConfig, type AirplayConfig } from '../utils/config';
 import CircularBuffer from '../utils/circularBuffer';
 import AudioOut from './audioOut';
 
@@ -16,8 +16,13 @@ class AirTunes extends Duplex {
    * @param options.packetSize Override packet size; defaults to config.
    * @param options.startTimeMs Optional unix ms to align playback start.
    */
-  constructor(options: { packetSize?: number; startTimeMs?: number } = {}) {
+  constructor(options: { packetSize?: number; startTimeMs?: number; config?: Partial<AirplayConfig> } = {}) {
     super({ readableObjectMode: false, writableObjectMode: false });
+
+    if (options.config) {
+      applyConfig(options.config);
+    }
+
     const audioOut = new AudioOut();
     this.devices = new Devices(audioOut);
 

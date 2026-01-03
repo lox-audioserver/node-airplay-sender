@@ -3,7 +3,7 @@ import { Readable } from 'node:stream';
 
 // Airtunes implementation (node_airtunes2 port) in src/core.
 import LegacyAirTunes from './core/index';
-import config from './utils/config';
+import config, { applyConfig, type AirplayConfig } from './utils/config';
 
 type LegacyAirTunesInstance = {
   add: (host: string, options?: Record<string, unknown>, mode?: number, txt?: string[] | string) => any;
@@ -50,6 +50,8 @@ export interface LoxAirplaySenderOptions {
   startTimeMs?: number;
   /** Logger hook for internal messages. */
   log?: (level: 'debug' | 'info' | 'warn' | 'error', message: string, data?: unknown) => void;
+  /** Override transport/buffer tuning without patching the module. */
+  config?: Partial<AirplayConfig>;
 }
 
 /**
@@ -95,11 +97,15 @@ export class LoxAirplaySender extends EventEmitter {
       this.stop();
     }
     this.log = options.log;
+    if (options.config) {
+      applyConfig(options.config);
+    }
     const inputCodec = options.inputCodec ?? 'pcm';
     config.packet_size = inputCodec === 'alac' ? config.alac_packet_size : config.pcm_packet_size;
     this.airtunes = new LegacyAirTunes({
       packetSize: config.packet_size,
       startTimeMs: options.startTimeMs,
+      config: options.config,
     }) as LegacyAirTunesInstance;
     this.airtunes.on('device', (key: string, status: string, desc: string) => {
       onEvent?.({ event: 'device', message: status, detail: { key, desc } });
